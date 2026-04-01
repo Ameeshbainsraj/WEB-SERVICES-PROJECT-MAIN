@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Pull from GitHub') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Ameeshbainsraj/WEB-SERVICES-PROJECT-MAIN.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t inventory-api .'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run -d -p 8000:8000 --name inventory-container inventory-api'
+            }
+        }
+
+        stage('Wait for API to start') {
+            steps {
+                bat 'ping -n 10 127.0.0.1 > nul'
+            }
+        }
+
+        stage('Run Newman Tests') {
+            steps {
+                bat 'newman run inventory-api-tests.json'
+            }
+        }
+
+        stage('Kill Container') {
+            steps {
+                bat 'docker stop inventory-container'
+                bat 'docker rm inventory-container'
+            }
+        }
+
+        stage('Generate README') {
+            steps {
+                bat '''echo API Endpoints > README.txt
+echo ============ >> README.txt
+echo /getAll - Returns all products >> README.txt
+echo /getSingleProduct/{id} - Returns single product by ID >> README.txt
+echo /addNew - Adds a new product (POST) >> README.txt
+echo /deleteOne/{id} - Deletes a product by ID >> README.txt
+echo /startsWith/{letter} - Returns products starting with letter >> README.txt
+echo /paginate?start={id}^&end={id} - Returns products in batches of 10 >> README.txt
+echo /convert/{id} - Returns product price in EUR >> README.txt
+echo. >> README.txt
+echo FastAPI Documentation: https://fastapi.tiangolo.com >> README.txt'''
+            }
+        }
+
+        stage('Create ZIP') {
+            steps {
+                bat 'powershell Compress-Archive -Path * -DestinationPath complete-%DATE:~10,4%%DATE:~4,2%%DATE:~7,2%-%TIME:~0,2%%TIME:~3,2%.zip -Force'
+            }
+        }
+    }
+}
