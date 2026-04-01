@@ -1,0 +1,5 @@
+$kind: http-request
+name: New Request
+url: http://127.0.0.1:8000/getAll
+method: GET
+order: 1775076213600
