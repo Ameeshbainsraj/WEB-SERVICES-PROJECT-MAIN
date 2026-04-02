@@ -20,7 +20,7 @@ class Product(BaseModel):
     Description: str
 
 
-# ---- 1. Get Single Product ----
+#Get Single Product
 @app.get("/getSingleProduct/{product_id}")
 def get_single_product(product_id: int):
     product = collection.find_one({"ProductID": product_id}, {"_id": 0})
@@ -29,14 +29,14 @@ def get_single_product(product_id: int):
     return product
 
 
-# ---- 2. Get All Products ----
+#Get All Products
 @app.get("/getAll")
 def get_all():
     products = list(collection.find({}, {"_id": 0}))
     return products
 
 
-# ---- 3. Add New Product ----
+#Add New Product
 @app.post("/addNew")
 def add_new(product: Product):
     existing = collection.find_one({"ProductID": product.ProductID})
@@ -46,7 +46,7 @@ def add_new(product: Product):
     return {"message": "Product added successfully!"}
 
 
-# ---- 4. Delete One Product ----
+#Delete One Product
 @app.delete("/deleteOne/{product_id}")
 def delete_one(product_id: int):
     result = collection.delete_one({"ProductID": product_id})
@@ -55,7 +55,7 @@ def delete_one(product_id: int):
     return {"message": f"Product {product_id} deleted successfully!"}
 
 
-# ---- 5. Starts With ----
+#Starts With
 @app.get("/startsWith/{letter}")
 def starts_with(letter: str):
     products = list(collection.find(
@@ -65,7 +65,7 @@ def starts_with(letter: str):
     return products
 
 
-# ---- 6. Paginate ----
+#Paginate
 @app.get("/paginate")
 def paginate(start: int, end: int):
     products = list(collection.find(
@@ -75,7 +75,7 @@ def paginate(start: int, end: int):
     return products
 
 
-# ---- 7. Convert Price to EUR ----
+#Convert Price to EUR
 @app.get("/convert/{product_id}")
 def convert(product_id: int):
     product = collection.find_one({"ProductID": product_id}, {"_id": 0})
