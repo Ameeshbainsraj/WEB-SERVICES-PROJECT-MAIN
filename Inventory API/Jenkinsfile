@@ -10,7 +10,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t inventory-api .'
+                dir('Inventory API') {
+                    bat 'docker build -t inventory-api .'
+                }
             }
         }
 
@@ -20,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Wait for API to start') {
+        stage('Wait for API') {
             steps {
                 bat 'ping -n 10 127.0.0.1 > nul'
             }
@@ -28,7 +30,9 @@ pipeline {
 
         stage('Run Newman Tests') {
             steps {
-                bat 'newman run inventory-api-tests.json'
+                dir('Inventory API') {
+                    bat 'newman run inventory-api-tests.json'
+                }
             }
         }
 
@@ -41,7 +45,8 @@ pipeline {
 
         stage('Generate README') {
             steps {
-                bat '''echo API Endpoints > README.txt
+                dir('Inventory API') {
+                    bat '''echo API Endpoints > README.txt
 echo ============ >> README.txt
 echo /getAll - Returns all products >> README.txt
 echo /getSingleProduct/{id} - Returns single product by ID >> README.txt
@@ -52,12 +57,15 @@ echo /paginate?start={id}^&end={id} - Returns products in batches of 10 >> READM
 echo /convert/{id} - Returns product price in EUR >> README.txt
 echo. >> README.txt
 echo FastAPI Documentation: https://fastapi.tiangolo.com >> README.txt'''
+                }
             }
         }
 
         stage('Create ZIP') {
             steps {
-                bat 'powershell Compress-Archive -Path * -DestinationPath complete-%DATE:~10,4%%DATE:~4,2%%DATE:~7,2%-%TIME:~0,2%%TIME:~3,2%.zip -Force'
+                dir('Inventory API') {
+                    bat 'powershell Compress-Archive -Path * -DestinationPath complete-%DATE:~10,4%%DATE:~4,2%%DATE:~7,2%-%TIME:~0,2%%TIME:~3,2%.zip -Force'
+                }
             }
         }
     }
